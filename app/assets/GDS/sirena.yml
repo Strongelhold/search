@@ -1,0 +1,7 @@
+---
+- plane_type: TU-224
+  total: 2200RUB
+  at: '08:33:00'
+- plane_type: Boeing-777
+  total: 3200RUB
+  at: '16:50:00'

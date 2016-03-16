@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+  <routes type="array">
+    <route>
+      <aircraft>Boeing 777</aircraft>
+      <price>
+        <RUB type="float">2300.32</RUB>
+      </price>
+      <time>12:30</time>
+    </route>
+    <route>
+      <aircraft>Boeing 767</aircraft>
+      <price>
+        <RUB type="float">2200.54</RUB>
+      </price>
+      <time>18:00</time>
+    </route>
+  </routes>
+</response>
