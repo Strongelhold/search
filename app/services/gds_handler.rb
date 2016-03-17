@@ -14,7 +14,7 @@ module GdsHandler
         when 'sirena'
           response = sirena_handler
         else
-          @error ="#{one_gds} not found"
+          @error ="GDS not found"
         end
       response.each do |data|
         @result << data
@@ -23,13 +23,11 @@ module GdsHandler
     if @error.empty? && !@result.empty?
       end_time = Time.now.to_f
       end_time -= start_time
-      answer = Hash.new
-      answer['result'] = 'success'
-      answer['elapsed'] = end_time.round 2
-      answer['items'] = @result
-      return answer
+      return get_answer('success', end_time.round(2), @result)
     else
-
+      end_time = Time.now.to_f
+      end_time -= start_time
+      return get_answer('error', end_time.round(2), [])
     end
   end
 
@@ -40,7 +38,7 @@ module GdsHandler
       sirena = YAML.load(file)
       response = []
       sirena.each do |data|
-        result =             Hash.new
+        result = Hash.new
         result['plane'] =    data['plane_type']
         cost =               data['total'].scan(/\d+/).first
         currency =           data['total'].scan(/[a-zA-Z]+/).first
@@ -57,7 +55,7 @@ module GdsHandler
       amadeus = Hash.from_xml(file)
       response = []
       amadeus['response']['routes'].each do |data|
-        result =             Hash.new
+        result = Hash.new
         result['plane'] =    data['aircraft'] 
         result['cost'] =     get_amount(data['price']['RUB'])
         result['currency'] = data['price'].key(data['price']['RUB'])
@@ -80,4 +78,11 @@ module GdsHandler
       price.round 2
     end
 
+    def self.get_answer(result, time, gds_response_array)
+      answer = Hash.new
+      answer['result'] =  result
+      answer['elapsed'] = time
+      answer['items'] =   gds_response_array
+      return answer
+    end
 end
