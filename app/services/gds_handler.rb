@@ -4,6 +4,7 @@ module GdsHandler
     start_time = Time.now.to_f
     @result  = []
     @error = ""
+    raise ArgumentError.new('You must give GDS array') unless gds.kind_of?(Array)
     if gds.empty? || gds.nil?
       end_time = Time.now.to_f
       end_time -= start_time
@@ -36,6 +37,10 @@ module GdsHandler
         return get_answer(@error, end_time.round(2), [])
       end
     end
+  rescue Exception => error_message
+    end_time = Time.now.to_f
+    end_time -= start_time
+    return get_answer(error_message, end_time.round(2), [])
   end
 
   private
