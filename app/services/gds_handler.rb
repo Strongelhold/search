@@ -4,30 +4,37 @@ module GdsHandler
     start_time = Time.now.to_f
     @result  = []
     @error = ""
-    gds.each do |one_gds|
-      response = []
-      case one_gds
-        when 'amadeus'
-          response = amadeus_handler
-        when 'gabriel'
-          response = gabriel_handler
-        when 'sirena'
-          response = sirena_handler
-        else
-          @error ="GDS not found"
-        end
-      response.each do |data|
-        @result << data
-      end
-    end
-    if @error.empty? && !@result.empty?
+    if gds.empty? || gds.nil?
       end_time = Time.now.to_f
       end_time -= start_time
-      return get_answer('success', end_time.round(2), @result)
+      @error = "GDS list empty"
+      return get_answer(@error, end_time.round(2), [])
     else
-      end_time = Time.now.to_f
-      end_time -= start_time
-      return get_answer('error', end_time.round(2), [])
+      gds.each do |one_gds|
+        response = []
+        case one_gds
+          when 'amadeus'
+            response = amadeus_handler
+          when 'gabriel'
+            response = gabriel_handler
+          when 'sirena'
+            response = sirena_handler
+          else
+            @error ="Unknow GDS"
+          end
+        response.each do |data|
+          @result << data
+        end
+      end
+      if @error.empty? && !@result.empty?
+        end_time = Time.now.to_f
+        end_time -= start_time
+        return get_answer('success', end_time.round(2), @result)
+      else
+        end_time = Time.now.to_f
+        end_time -= start_time
+        return get_answer(@error, end_time.round(2), [])
+      end
     end
   end
 
