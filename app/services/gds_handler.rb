@@ -29,6 +29,21 @@ module GdsHandler
       GdsHandler.result = @result
     end
 
+    def self.amadeus_handler
+      file = File.read('app/assets/GDS/amadeus.xml')
+      amadeus = Hash.from_xml(file)
+      responce = []
+      amadeus['response']['routes'].each do |data|
+        result = Hash.new
+        result['plane'] = data['aircraft'] 
+        result['cost'] = get_amount(data['price']['RUB'])
+        result['currency'] = data['price'].key(data['price']['RUB'])
+        result['time'] = data['time']
+        responce << result
+      end
+      return responce
+    end
+
     def self.gabriel_handler
       file = File.read('app/assets/GDS/gabriel.json')
       gabriel = JSON.parse(file)
