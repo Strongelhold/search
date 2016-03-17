@@ -1,8 +1,12 @@
 module GdsHandler
-  def self.parse(gds)
+
+  def self.handle(gds)
+    start_time = Time.now.to_f
     @result  = []
+    @error = ""
     gds.each do |one_gds|
-      response = case one_gds
+      response = []
+      case one_gds
         when 'amadeus'
           response = amadeus_handler
         when 'gabriel'
@@ -10,14 +14,23 @@ module GdsHandler
         when 'sirena'
           response = sirena_handler
         else
-          #ошибка
-          puts "error"
+          @error ="#{one_gds} not found"
         end
       response.each do |data|
         @result << data
       end
     end
-    return @result
+    if @error.empty? && !@result.empty?
+      end_time = Time.now.to_f
+      end_time -= start_time
+      answer = Hash.new
+      answer['result'] = 'success'
+      answer['elapsed'] = end_time.round 2
+      answer['items'] = @result
+      return answer
+    else
+
+    end
   end
 
   private
@@ -27,13 +40,13 @@ module GdsHandler
       sirena = YAML.load(file)
       response = []
       sirena.each do |data|
-        result = Hash.new
-        result['plane'] = data['plane_type']
-        cost = data['total'].scan(/\d+/).first
-        currency = data['total'].scan(/[a-zA-Z]+/).first
-        result['cost'] = get_amount(cost.to_f)
+        result =             Hash.new
+        result['plane'] =    data['plane_type']
+        cost =               data['total'].scan(/\d+/).first
+        currency =           data['total'].scan(/[a-zA-Z]+/).first
+        result['cost'] =     get_amount(cost.to_f)
         result['currency'] = currency
-        result['time'] = data['at'].scan(/[0-9]+.:[0-9]+/).first
+        result['time'] =     data['at'].scan(/[0-9]+.:[0-9]+/).first
         response << result
       end
       return response
@@ -44,7 +57,7 @@ module GdsHandler
       amadeus = Hash.from_xml(file)
       response = []
       amadeus['response']['routes'].each do |data|
-        result = Hash.new
+        result =             Hash.new
         result['plane'] =    data['aircraft'] 
         result['cost'] =     get_amount(data['price']['RUB'])
         result['currency'] = data['price'].key(data['price']['RUB'])
@@ -66,4 +79,5 @@ module GdsHandler
       price += price/100.00
       price.round 2
     end
+
 end
