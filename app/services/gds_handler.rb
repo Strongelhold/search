@@ -1,38 +1,31 @@
 module GdsHandler
   def self.parse(gds)
+    @result  = []
     gds.each do |one_gds|
-      case one_gds
+      response = case one_gds
         when 'amadeus'
-          #обработка
-          puts "amadeus"
+          response = amadeus_handler
         when 'gabriel'
-          #обработка
-          @result = gabriel_handler
-          return @result
+          response = gabriel_handler
         when 'sirena'
-          #Обработка
-          puts "sirena"
+          response = sirena_handler
         else
           #ошибка
           puts "error"
         end
+      response.each do |data|
+        @result << data
+      end
     end
+    return @result
   end
 
   private
-    #Пока бесполезный метод. Удалить/поменять
-    def self.compaund(json_data)
-      @index = 0 unless @result.to_a.empty?
-
-      @result.insert(@index, json_data)
-      @index += 1
-      GdsHandler.result = @result
-    end
 
     def self.sirena_handler
       file = File.read('app/assets/GDS/sirena.yml')
       sirena = YAML.load(file)
-      responce = []
+      response = []
       sirena.each do |data|
         result = Hash.new
         result['plane'] = data['plane_type']
@@ -41,24 +34,24 @@ module GdsHandler
         result['cost'] = get_amount(cost.to_f)
         result['currency'] = currency
         result['time'] = data['at'].scan(/[0-9]+.:[0-9]+/).first
-        responce << result
+        response << result
       end
-      return responce
+      return response
     end
 
     def self.amadeus_handler
       file = File.read('app/assets/GDS/amadeus.xml')
       amadeus = Hash.from_xml(file)
-      responce = []
+      response = []
       amadeus['response']['routes'].each do |data|
         result = Hash.new
         result['plane'] =    data['aircraft'] 
         result['cost'] =     get_amount(data['price']['RUB'])
         result['currency'] = data['price'].key(data['price']['RUB'])
         result['time'] =     data['time']
-        responce << result
+        response << result
       end
-      return responce
+      return response
     end
 
     def self.gabriel_handler
@@ -71,6 +64,6 @@ module GdsHandler
 
     def self.get_amount(price)
       price += price/100.00
-      price.round 2  #добавить вывод 2х знаков после запятой в случае 0 на конце
+      price.round 2
     end
 end
