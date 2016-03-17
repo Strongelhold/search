@@ -8,7 +8,7 @@ module GdsHandler
         when 'gabriel'
           #обработка
           @result = gabriel_handler
-          puts @result
+          return @result
         when 'sirena'
           #Обработка
           puts "sirena"
@@ -20,7 +20,7 @@ module GdsHandler
   end
 
   private
-
+    #Пока бесполезный метод. Удалить/поменять
     def self.compaund(json_data)
       @index = 0 unless @result.to_a.empty?
 
@@ -29,16 +29,33 @@ module GdsHandler
       GdsHandler.result = @result
     end
 
+    def self.sirena_handler
+      file = File.read('app/assets/GDS/sirena.yml')
+      sirena = YAML.load(file)
+      responce = []
+      sirena.each do |data|
+        result = Hash.new
+        result['plane'] = data['plane_type']
+        cost = data['total'].scan(/\d+/).first
+        currency = data['total'].scan(/[a-zA-Z]+/).first
+        result['cost'] = get_amount(cost.to_f)
+        result['currency'] = currency
+        result['time'] = data['at'].scan(/[0-9]+.:[0-9]+/).first
+        responce << result
+      end
+      return responce
+    end
+
     def self.amadeus_handler
       file = File.read('app/assets/GDS/amadeus.xml')
       amadeus = Hash.from_xml(file)
       responce = []
       amadeus['response']['routes'].each do |data|
         result = Hash.new
-        result['plane'] = data['aircraft'] 
-        result['cost'] = get_amount(data['price']['RUB'])
+        result['plane'] =    data['aircraft'] 
+        result['cost'] =     get_amount(data['price']['RUB'])
         result['currency'] = data['price'].key(data['price']['RUB'])
-        result['time'] = data['time']
+        result['time'] =     data['time']
         responce << result
       end
       return responce
