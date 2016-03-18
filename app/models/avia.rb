@@ -3,6 +3,7 @@ class Avia < ActiveRecord::Base
 
   def self.search(date, gds)
     raise ArgumentError.new('Date must be a String') unless date.kind_of?(String) 
+    raise ArgumentError.new('Empty GDS data at input') unless gds.nil?
     if date.empty?
       error = "Date is empty"
       GdsHandler.get_answer(error, 0.0, [])
