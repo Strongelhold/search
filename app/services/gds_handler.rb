@@ -52,13 +52,8 @@ module GdsHandler
     sirena = YAML.load(file)
     response = []
     sirena.each do |data|
-      #result = Hash.new
-      #result['plane'] =    data['plane_type']
       cost =               data['total'].scan(/\d+/).first
       currency =           data['total'].scan(/[a-zA-Z]+/).first
-      #result['cost'] =     get_amount(cost.to_f)
-      #result['currency'] = currency
-      #result['time'] =     data['at'].scan(/[0-9]+.:[0-9]+/).first
       result = convert_to_right_format(data['plane_type'],
                                        get_amount(cost.to_f), currency,
                                        data['at'].scan(/[0-9]+.:[0-9]+/).first)
@@ -72,11 +67,6 @@ module GdsHandler
     amadeus = Hash.from_xml(file)
     response = []
     amadeus['response']['routes'].each do |data|
-      #result = Hash.new
-      #result['plane'] =    data['aircraft'] 
-      #result['cost'] =     get_amount(data['price']['RUB'])
-      #result['currency'] = data['price'].key(data['price']['RUB'])
-      #result['time'] =     data['time']
       result = convert_to_right_format(data['aircraft'],
                                        get_amount(data['price']['RUB']),
                                        data['price'].key(data['price']['RUB']),
