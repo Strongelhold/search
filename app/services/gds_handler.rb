@@ -2,6 +2,7 @@ module GdsHandler
 
   def self.handle(gds)
     start_time = Time.now.to_f
+    threads = []
     @result  = []
     @error = ""
     raise ArgumentError.new('You must give GDS array') unless gds.kind_of?(Array)
@@ -12,21 +13,24 @@ module GdsHandler
       return get_answer(@error, end_time.round(2), [])
     else
       gds.each do |one_gds|
-        response = []
-        case one_gds
-          when 'amadeus'
-            response = amadeus_handler
-          when 'gabriel'
-            response = gabriel_handler
-          when 'sirena'
-            response = sirena_handler
-          else
-            @error ="Unknow GDS"
+        threads << Thread.new do
+          response = []
+          case one_gds
+            when 'amadeus'
+              response = amadeus_handler
+            when 'gabriel'
+              response = gabriel_handler
+            when 'sirena'
+              response = sirena_handler
+            else
+              @error ="Unknow GDS"
+            end
+          response.each do |data|
+            @result << data
           end
-        response.each do |data|
-          @result << data
         end
       end
+      threads.each(&:join)
       if @error.empty? && !@result.empty?
         end_time = Time.now.to_f
         end_time -= start_time
