@@ -52,13 +52,16 @@ module GdsHandler
     sirena = YAML.load(file)
     response = []
     sirena.each do |data|
-      result = Hash.new
-      result['plane'] =    data['plane_type']
+      #result = Hash.new
+      #result['plane'] =    data['plane_type']
       cost =               data['total'].scan(/\d+/).first
       currency =           data['total'].scan(/[a-zA-Z]+/).first
-      result['cost'] =     get_amount(cost.to_f)
-      result['currency'] = currency
-      result['time'] =     data['at'].scan(/[0-9]+.:[0-9]+/).first
+      #result['cost'] =     get_amount(cost.to_f)
+      #result['currency'] = currency
+      #result['time'] =     data['at'].scan(/[0-9]+.:[0-9]+/).first
+      result = convert_to_right_format(data['plane_type'],
+                                       get_amount(cost.to_f), currency,
+                                       data['at'].scan(/[0-9]+.:[0-9]+/).first)
       response << result
     end
     return response
@@ -69,11 +72,15 @@ module GdsHandler
     amadeus = Hash.from_xml(file)
     response = []
     amadeus['response']['routes'].each do |data|
-      result = Hash.new
-      result['plane'] =    data['aircraft'] 
-      result['cost'] =     get_amount(data['price']['RUB'])
-      result['currency'] = data['price'].key(data['price']['RUB'])
-      result['time'] =     data['time']
+      #result = Hash.new
+      #result['plane'] =    data['aircraft'] 
+      #result['cost'] =     get_amount(data['price']['RUB'])
+      #result['currency'] = data['price'].key(data['price']['RUB'])
+      #result['time'] =     data['time']
+      result = convert_to_right_format(data['aircraft'],
+                                       get_amount(data['price']['RUB']),
+                                       data['price'].key(data['price']['RUB']),
+                                       data['time'])
       response << result
     end
     return response
@@ -98,5 +105,13 @@ module GdsHandler
     answer['elapsed'] = time
     answer['items'] =   gds_response_array
     return answer
+  end
+  def self.convert_to_right_format(plane, cost, currency, time)
+    result = Hash.new
+    result['plane'] =    plane
+    result['cost'] =     cost
+    result['currency'] = currency
+    result['time'] =     time
+    return result
   end
 end
