@@ -1,4 +1,4 @@
-require "rails_helper"
+require 'rails_helper'
 
 describe "Avia" do
   before do
@@ -61,6 +61,11 @@ describe "Avia" do
     it "answer must have correct format" do
       result = Avia.search(@correct_date, @correct_gds)
       expect(result.to_s.scan(/{"result"=>"[a-zA-Z]+", "elapsed"=>\d+.\d+, "items"=>/).first.empty?).not_to be true
+    end
+
+    it "must return Empty request error" do
+      visit 'avia/search'
+      expect(page).to have_content("Empty request")
     end
 
   end
